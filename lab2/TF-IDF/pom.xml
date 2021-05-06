@@ -64,7 +64,7 @@
                   <archive>
                     <manifest>
                         <!-- 此处指定main方法入口的class -->
-                        <mainClass>com.xjm.TFMR</mainClass>
+                        <mainClass>com.xjm.Client</mainClass>
                     </manifest>
                   </archive>
               </configuration>

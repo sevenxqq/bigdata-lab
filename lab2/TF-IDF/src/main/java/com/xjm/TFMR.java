@@ -11,6 +11,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -33,7 +34,12 @@ public class TFMR{
             job.setOutputKeyClass(Text.class);
             job.setOutputValueClass(Text.class);
             String inputPath = args[0];
-            String outputPath = args[1];
+            String outputPath = args[1] + "TF";
+            Path fileOutPath = new Path(outputPath);
+            FileSystem fileSystem = FileSystem.get(conf);
+            if (fileSystem.exists(fileOutPath)) {
+                fileSystem.delete(fileOutPath, true);
+            }  
             FileInputFormat.addInputPath(job, new Path(inputPath));
             FileOutputFormat.setOutputPath(job, new Path(outputPath));
             job.waitForCompletion(true);
@@ -70,18 +76,15 @@ public class TFMR{
                 context.write(word, one);  
             }
         }
-        
-      
     }
     
     public static class TFCombiner extends Reducer<Text, Text, Text, Text> {      
         @Override
         protected void reduce(Text key, Iterable<Text> values,
-                Reducer<Text, Text, Text, Text>.Context context) throws IOException, InterruptedException {
-            
+                Reducer<Text, Text, Text, Text>.Context context) throws IOException, InterruptedException {   
             if (values == null) {
                 return;
-            }                 
+            }                  
             int sumCount = 0;
             for (Text val : values) {
                 sumCount += Integer.parseInt(val.toString());
@@ -97,7 +100,7 @@ public class TFMR{
                         throws IOException, InterruptedException {
             if (values == null) {
                 return;
-            }   
+            }    
             int sumCount = 0;
             for (Text val : values) {
                 sumCount += Integer.parseInt(val.toString());
